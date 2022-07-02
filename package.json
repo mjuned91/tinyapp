@@ -11,10 +11,13 @@
     "url": "git+https://github.com/mjuned91/tinyapp.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Malik M.N. Juned",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/mjuned91/tinyapp/issues"
   },
-  "homepage": "https://github.com/mjuned91/tinyapp#readme"
+  "homepage": "https://github.com/mjuned91/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
 }
