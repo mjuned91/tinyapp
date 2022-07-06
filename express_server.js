@@ -31,11 +31,15 @@ app.post("/urls", (req, res) => {
   urlDatabase[id] = longURL;
   res.redirect(`/urls/${id}`);
 });
-
+// To get redirected to the longURL directly
 app.get("/u/:id", (req, res) => {
   const {id} = req.params;
-  const longURL = urlDatabase[id];
-  res.redirect(longURL);
+  if (!urlDatabase[id]) {
+    return res.send("This short URL does not exist.");
+  } else {
+    const longURL = urlDatabase[id];
+    res.redirect(longURL);
+  };
 });
 
 app.get("/urls", (req, res) => {
