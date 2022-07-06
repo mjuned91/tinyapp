@@ -2,18 +2,40 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 
-app.set("view engine", "ejs");
+const generateRandomString = () => {
+  const alphaNumerical = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += alphaNumerical.charAt(Math.floor(Math.random() * alphaNumerical.length));
+  }
+  return result;
+};
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+app.set("view engine", "ejs");
+
 app.use(express.urlencoded({ extended: true }));
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  //console.log(req.body); // Log the POST request body to the console
+  const {longURL} = req.body; // Destructuring (its a way of writing it)
+  if (!longURL) {
+    return res.send("You need to pass a longURL.");
+  };
+  // To add the newly generated id-longURL to the database
+  const id = generateRandomString();
+  urlDatabase[id] = longURL;
+  res.redirect(`/urls/${id}`);
+});
+
+app.get("/u/:id", (req, res) => {
+  const {id} = req.params;
+  const longURL = urlDatabase[id];
+  res.redirect(longURL);
 });
 
 app.get("/urls", (req, res) => {
@@ -35,12 +57,3 @@ app.get("/urls/:shortURL", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
-
-const generateRandomString = () => {
-  const alphaNumerical = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += alphaNumerical.charAt(Math.floor(Math.random() * alphaNumerical.length));
-  }
-  return result;
-};
