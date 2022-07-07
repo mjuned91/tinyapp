@@ -43,10 +43,27 @@ app.get("/u/:id", (req, res) => {
   };
 });
 
+// To delete a URL
 app.post("/urls/:id/delete", (req, res) => {
   const {id} = req.params;
   delete urlDatabase[id];
   res.redirect("/urls");
+});
+
+// To redirect the Edit button
+app.post("/urls/:id", (req, res) => {
+  const shortURL = req.params.id;
+  console.log("hello");
+  res.redirect(`/urls/${shortURL}`);
+});
+
+// Get longURL from the req and update it to the database
+app.post("/urls/:id/edit", (req, res) => {
+  console.log(req);
+  const shortURL = req.params.id;
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  res.redirect(`/urls`);
 });
 
 app.get("/urls", (req, res) => {
@@ -58,10 +75,10 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-app.get("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
-  const templateVars = { shortURL, longURL };
+app.get("/urls/:id", (req, res) => {
+  const {id} = req.params;
+  const longURL = urlDatabase[id];
+  const templateVars = { id, longURL };
   res.render("urls_show", templateVars);
 });
 
