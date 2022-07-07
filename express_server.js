@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080;
 
@@ -19,14 +20,15 @@ const urlDatabase = {
 app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
+// To add the newly generated id-longURL to the database
 app.post("/urls", (req, res) => {
-  //console.log(req.body); // Log the POST request body to the console
-  const {longURL} = req.body; // Destructuring (its a way of writing it)
+  const longURL = req.body.longURL;
   if (!longURL) {
     return res.send("You need to pass a longURL.");
   };
-  // To add the newly generated id-longURL to the database
+
   const id = generateRandomString();
   urlDatabase[id] = longURL;
   res.redirect(`/urls/${id}`);
@@ -34,7 +36,7 @@ app.post("/urls", (req, res) => {
 
 // To get redirected to the longURL directly
 app.get("/u/:id", (req, res) => {
-  const {id} = req.params;
+  const id = req.params.id;
   if (!urlDatabase[id]) {
     return res.send("This short URL does not exist.");
   } else {
@@ -45,7 +47,7 @@ app.get("/u/:id", (req, res) => {
 
 // To delete a URL
 app.post("/urls/:id/delete", (req, res) => {
-  const {id} = req.params;
+  const id = req.params.id;
   delete urlDatabase[id];
   res.redirect("/urls");
 });
@@ -53,32 +55,48 @@ app.post("/urls/:id/delete", (req, res) => {
 // To redirect the Edit button
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
-  console.log("hello");
   res.redirect(`/urls/${shortURL}`);
 });
 
 // Get longURL from the req and update it to the database
 app.post("/urls/:id/edit", (req, res) => {
-  console.log(req);
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
-  res.redirect(`/urls`);
+  res.redirect("/urls");
 });
 
+// Login cookie
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body.username);
+  res.redirect("/urls");
+});
+
+// Page - /login
+app.get("/login", (req, res) => {
+  res.render("urls_login", {});
+});
+
+// Page - /urls
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const username = req.cookies["username"];
+  const templateVars = { urls: urlDatabase, username };
   res.render("urls_index", templateVars);
 });
 
+// Page - /urls/new
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const username = req.cookies["username"];
+  const templateVars = { username };
+  res.render("urls_new", templateVars);
 });
 
+// Page - to edit the longURL
 app.get("/urls/:id", (req, res) => {
-  const {id} = req.params;
+  const username = req.cookies["username"];
+  const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = { id, longURL };
+  const templateVars = { id, longURL, username };
   res.render("urls_show", templateVars);
 });
 
