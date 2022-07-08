@@ -119,7 +119,7 @@ app.post("/register", (req, res) => {
   const user = users[req.cookies["user_ID"]];
   if (!userEmail || !userPassword) {
     res.status(400).send("The email address or password field is empty. Please fill out both fields.");
-  } else if (getUserByEmail(req.body.email, users)) {
+  } else if (getUserByEmail(userEmail, users)) {
     res.status(400).send("This email address already exists. Please enter a new email address.");
   } else if (userPassword.length < 6) {
     return res.status(400).send("Please enter a password with a minimum of 6 characters.");
@@ -136,13 +136,17 @@ app.post("/register", (req, res) => {
 
 // Page - /register
 app.get("/register", (req, res) => {
-  const user = users[req.cookies["user_ID"]];
-  const templateVars = { user };
-res.render("urls_register", templateVars);
+    const user = users[req.cookies["user_ID"]];
+    const templateVars = { user };
+    res.render("urls_register", templateVars);
 });
 
 // Page - /login
 app.get("/login", (req, res) => {
+  const userID = req.cookies["user_ID"]; 
+  if (userID) {
+    return res.redirect("/urls"); 
+  };
   const user = users[req.cookies["user_ID"]];
   const templateVars = { user };
   res.render("urls_login", templateVars);
@@ -157,6 +161,10 @@ app.get("/urls", (req, res) => {
 
 // Page - /urls/new
 app.get("/urls/new", (req, res) => {
+  const userID = req.cookies["user_ID"]; 
+  if (!userID) {
+    return res.redirect("/login");
+  };
   const user = users[req.cookies["user_ID"]];
   const templateVars = { user };
   res.render("urls_new", templateVars);
