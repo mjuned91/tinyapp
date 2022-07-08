@@ -21,6 +21,16 @@ const getUserByEmail = (email, database) => {
   return undefined;
 };
 
+const urlsForUser = (id, database) => {
+  let userURLs = {};
+  for (const shortURL in database) {
+    if (database[shortURL].userID === id) {
+      userURLs[shortURL] = database[shortURL];
+    };
+  };
+  return userURLs;
+};
+
 const urlDatabase = {
   "b6UTxQ": {
     longURL: "https://www.tsn.ca",
@@ -50,20 +60,16 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// To get redirected to the longURL directly
-app.get("/u/:id", (req, res) => {
-  const id = req.params.id;
-  if (!urlDatabase[id]) {
-    return res.send("Sorry. This short URL does not exist.");
-  };
-    const longURL = urlDatabase[id].longURL;
-    res.redirect(longURL);
-});
-
 // Page - /urls
 app.get("/urls", (req, res) => {
+  const userID = req.cookies["user_ID"]; 
+  if (!userID) {
+    return res.send("You must be logged in to view the shortened URLs.");
+  };
+
+  const userURLs = urlsForUser(userID, urlDatabase);
   const user = users[req.cookies["user_ID"]];
-  const templateVars = { urls: urlDatabase, user };
+  const templateVars = { urls: userURLs, user };
   res.render("urls_index", templateVars);
   });
 
@@ -80,6 +86,7 @@ const userID = req.cookies["user_ID"];
 if (userID) {
   return res.redirect("/urls"); 
 };
+
 const user = users[req.cookies["user_ID"]];
 const templateVars = { user };
 res.render("urls_login", templateVars);
@@ -91,19 +98,41 @@ const userID = req.cookies["user_ID"];
 if (!userID) {
   return res.redirect("/login");
 };
+
 const user = users[req.cookies["user_ID"]];
 const templateVars = { user };
 res.render("urls_new", templateVars);
 });
 
+// To get redirected to the longURL directly
+app.get("/u/:id", (req, res) => {
+  const id = req.params.id;
+  if (!urlDatabase[id]) {
+    return res.send("Sorry. This short URL does not exist.");
+  };
+
+  const longURL = urlDatabase[id].longURL;
+  res.redirect(longURL);
+});
+
 // Page - to edit the longURL
 app.get("/urls/:id", (req, res) => {
-const user = users[req.cookies["user_ID"]];
-const id = req.params.id;
-const longURL = urlDatabase[id].longURL;
-const templateVars = { id, longURL, user };
-res.render("urls_show", templateVars);
+  const userID = req.cookies["user_ID"]; 
+  if (!userID) {
+    return res.send("You must be logged in to view the shortened URLs.");
+  };
+
+  const id = req.params.id;
+  if (userID !== urlDatabase[id].userID) {
+    return res.send("You do not have this short URL saved.");
+  }; 
+
+  const user = users[req.cookies["user_ID"]];
+  const longURL = urlDatabase[id].longURL;
+  const templateVars = { id, longURL, user };
+  res.render("urls_show", templateVars);
 });
+
 
 // To add the newly generated id-longURL pair to the database
 app.post("/urls", (req, res) => {
@@ -115,9 +144,12 @@ app.post("/urls", (req, res) => {
   if (!longURL) {
     return res.send("Please provide a proper URL.");
   };
-
+  // Where id is the shortURL
   const id = generateRandomString();
-  urlDatabase[id].longURL = longURL;
+  urlDatabase[id]= {
+    longURL: longURL,
+    userID: userID
+  };
   res.redirect(`/urls/${id}`);
 });
 
@@ -161,6 +193,7 @@ app.post("/register", (req, res) => {
       password: userPassword
     };
   };
+
   res.cookie("user_ID", userID);
   res.redirect("/urls");
 });
