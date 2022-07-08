@@ -5,6 +5,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>URL Shortener</title>
 </head>
+
 <body>
   <%- include('partials/_header') %>
 
@@ -18,8 +19,7 @@
   </div>
 
   <main style="margin: 1em;">
-    <h3><center>Edit</center></h3>
-    <center>
+    <h3>Edit URL</h3>
       <form class="form-inline" action="/urls/<%= id %>/edit" method="POST">
         <div class="form-group mb-2">
           <label for="longURL">New URL:</label>
@@ -33,7 +33,6 @@
           <button type="submit" class="btn btn-primary">Submit</button>
         </div>
       </form>
-    </center>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
