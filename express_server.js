@@ -48,7 +48,7 @@ app.use(cookieParser());
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   if (!longURL) {
-    return res.send("You need to pass a longURL.");
+    return res.send("Please provide a proper URL.");
   };
 
   const id = generateRandomString();
@@ -91,7 +91,7 @@ app.post("/urls/:id/edit", (req, res) => {
 // Login cookie
 app.post("/login", (req, res) => {
   res.cookie("user_ID", req.body.user);
-  res.redirect("/urls");
+  res.redirect("/logic");
 });
 
 // Logout
@@ -130,7 +130,9 @@ res.render("urls_register", templateVars);
 
 // Page - /login
 app.get("/login", (req, res) => {
-  res.render("urls_login", {});
+  const user = users[req.cookies["user_ID"]];
+  const templateVars = { user };
+  res.render("urls_login", templateVars);
 });
 
 // Page - /urls
