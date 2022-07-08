@@ -46,6 +46,10 @@ app.use(cookieParser());
 
 // To add the newly generated id-longURL to the database
 app.post("/urls", (req, res) => {
+  const userID = req.cookies["user_ID"]; 
+  if (!userID) {
+    return res.send("You must be logged in to shorten the URL.");
+  };
   const longURL = req.body.longURL;
   if (!longURL) {
     return res.send("Please provide a proper URL.");
