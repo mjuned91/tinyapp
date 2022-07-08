@@ -108,7 +108,7 @@ res.render("urls_new", templateVars);
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   if (!urlDatabase[id]) {
-    return res.send("Sorry. This short URL does not exist.");
+    return res.send("Sorry. This shortURL does not exist.");
   };
 
   const longURL = urlDatabase[id].longURL;
@@ -155,8 +155,17 @@ app.post("/urls", (req, res) => {
 
 // To delete a URL
 app.post("/urls/:id/delete", (req, res) => {
+  const userID = req.cookies["user_ID"];
   const id = req.params.id;
-  delete urlDatabase[id].longURL;
+  if (!userID) {
+    return res.send("You must be logged in to shorten the URL.");
+  } else if (userID !== urlDatabase[id].userID) {
+    return res.send("Request denied. You are not allowed to delete that shortURL.");
+  } else if (!urlDatabase[id]) {
+    return res.send("Sorry. This short URL does not exist.");
+  };
+  
+  delete urlDatabase[id];
   res.redirect("/urls");
 });
 
