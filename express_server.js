@@ -65,10 +65,9 @@ app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   if (!urlDatabase[id]) {
     return res.send("This short URL does not exist.");
-  } else {
+  };
     const longURL = urlDatabase[id];
     res.redirect(longURL);
-  };
 });
 
 // To delete a URL
