@@ -22,8 +22,14 @@ const getUserByEmail = (email, database) => {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b6UTxQ": {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW"
+  },
+  "i3BoGr": {
+    longURL: "http://www.google.com",
+    userID: "aJ48lW"
+  }
 };
 
 const users = {
@@ -48,9 +54,9 @@ app.use(cookieParser());
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   if (!urlDatabase[id]) {
-    return res.send("This short URL does not exist.");
+    return res.send("Sorry. This short URL does not exist.");
   };
-    const longURL = urlDatabase[id];
+    const longURL = urlDatabase[id].longURL;
     res.redirect(longURL);
 });
 
@@ -94,7 +100,7 @@ res.render("urls_new", templateVars);
 app.get("/urls/:id", (req, res) => {
 const user = users[req.cookies["user_ID"]];
 const id = req.params.id;
-const longURL = urlDatabase[id];
+const longURL = urlDatabase[id].longURL;
 const templateVars = { id, longURL, user };
 res.render("urls_show", templateVars);
 });
@@ -111,28 +117,28 @@ app.post("/urls", (req, res) => {
   };
 
   const id = generateRandomString();
-  urlDatabase[id] = longURL;
+  urlDatabase[id].longURL = longURL;
   res.redirect(`/urls/${id}`);
 });
 
 // To delete a URL
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
-  delete urlDatabase[id];
+  delete urlDatabase[id].longURL;
   res.redirect("/urls");
 });
 
 // To redirect the Edit button
 app.post("/urls/:id", (req, res) => {
-  const shortURL = req.params.id;
-  res.redirect(`/urls/${shortURL}`);
+  const id = req.params.id;
+  res.redirect(`/urls/${id}`);
 });
 
 // Get longURL from the req and update it on the database
 app.post("/urls/:id/edit", (req, res) => {
-  const shortURL = req.params.id;
+  const id = req.params.id;
   const longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[id].longURL = longURL;
   res.redirect("/urls");
 });
 
