@@ -90,14 +90,25 @@ app.post("/urls/:id/edit", (req, res) => {
 
 // Login cookie
 app.post("/login", (req, res) => {
-  res.cookie("user_ID", req.body.user);
-  res.redirect("/logic");
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  const userID = getUserByEmail(userEmail, users);
+  if (!userEmail || !userPassword) {
+    return res.status(403).send("The email address or password field is empty. Please fill out both fields.");
+  } else if (!userID) {
+    return res.status(403).send("No existing user was found with this email address. Please try again.");
+  } else if (userID && (userPassword !== userID.password)) { 
+    return res.status(403).send("Wrong password. Please try again.");
+  } else if (userID) {
+    res.cookie("user_ID", userID.id);
+  };
+  res.redirect("/urls");
 });
 
 // Logout
 app.post("/logout", (req, res) => {
   res.clearCookie("user_ID");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 // Register
@@ -107,9 +118,11 @@ app.post("/register", (req, res) => {
   const userPassword = req.body.password;
   const user = users[req.cookies["user_ID"]];
   if (!userEmail || !userPassword) {
-    res.status(400).send("The email address or password is empty. Please fill out both fields.");
+    res.status(400).send("The email address or password field is empty. Please fill out both fields.");
   } else if (getUserByEmail(req.body.email, users)) {
     res.status(400).send("This email address already exists. Please enter a new email address.");
+  } else if (userPassword.length < 6) {
+    return res.status(400).send("Please enter a password with a minimum of 6 characters.");
   } else {
     users[userID] = {
       id: userID,
