@@ -81,25 +81,36 @@ app.post("/urls/:id/edit", (req, res) => {
 
 // Login cookie
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  res.cookie("user_ID", req.body.user);
   res.redirect("/urls");
 });
 
 // Logout
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_ID");
   res.redirect("/urls");
 });
 
 // Register
 app.post("/register", (req, res) => {
-  
+  const userID = generateRandomString();
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  users[userID] = {
+    id: userID,
+    email: userEmail,
+    password: userPassword
+  };
+  res.cookie("user_ID", userID);
+  res.redirect("/urls");
 });
 
 // Page - /register
 app.get("/register", (req, res) => {
-  const username = req.cookies["username"];
-  const templateVars = { username };
+  const user = users[req.cookies["user_ID"]];
+  console.log(req.cookies);
+  console.log(user);
+  const templateVars = { user };
 res.render("urls_register", templateVars);
 });
 
@@ -110,27 +121,27 @@ app.get("/login", (req, res) => {
 
 // Page - /urls
 app.get("/urls", (req, res) => {
-  const username = req.cookies["username"];
-  const templateVars = { urls: urlDatabase, username };
+  const user = users[req.cookies["user_ID"]];
+  const templateVars = { urls: urlDatabase, user };
   res.render("urls_index", templateVars);
 });
 
 // Page - /urls/new
 app.get("/urls/new", (req, res) => {
-  const username = req.cookies["username"];
-  const templateVars = { username };
+  const user = users[req.cookies["user_ID"]];
+  const templateVars = { user };
   res.render("urls_new", templateVars);
 });
 
 // Page - to edit the longURL
 app.get("/urls/:id", (req, res) => {
-  const username = req.cookies["username"];
+  const user = users[req.cookies["user_ID"]];
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = { id, longURL, username };
+  const templateVars = { id, longURL, user };
   res.render("urls_show", templateVars);
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}`);
+  console.log(`Server listening on port ${PORT}`);
 });
