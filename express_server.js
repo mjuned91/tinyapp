@@ -5,7 +5,6 @@ const { generateRandomString, getUserByEmail, urlsForUser } = require("./helpers
 const app = express();
 const PORT = 8080;
 
-
 const urlDatabase = {};
 const users = {};
 
@@ -13,6 +12,7 @@ app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieSession({name: 'session', keys: ["sheeshkabab"], maxAge: 24 * 60 * 60 * 1000}));
+
 
 
 // Page - /urls
