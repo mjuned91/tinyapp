@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080;
 
@@ -187,7 +188,7 @@ app.post("/urls/:id/edit", (req, res) => {
 app.post("/register", (req, res) => {
   const userID = generateRandomString();
   const userEmail = req.body.email;
-  const userPassword = req.body.password;
+  const userPassword = bcrypt.hashSync(req.body.password, 10);
   const user = users[req.cookies["user_ID"]];
   if (!userEmail || !userPassword) {
     res.status(400).send("The email address or password field is empty. Please fill out both fields.");
