@@ -217,7 +217,7 @@ app.post("/login", (req, res) => {
     return res.status(403).send("The email address or password field is empty. Please fill out both fields.");
   } else if (!userID) {
     return res.status(403).send("No existing user was found with this email address. Please try again.");
-  } else if (userID && (userPassword !== userID.password)) { 
+  } else if (userID && bcrypt.compareSync(userPassword, userID.password)) { 
     return res.status(403).send("Wrong password. Please try again.");
   } else if (userID) {
     res.cookie("user_ID", userID.id);
